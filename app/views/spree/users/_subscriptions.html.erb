@@ -14,10 +14,10 @@
       <tbody>
         <% @user.subscriptions.each do |subscription| %>
           <tr>
-            <td><%= subscription.products %></td>
+            <td><%= subscription.products.map(&:name).to_sentence %></td>
             <td><%= subscription.last_shipment_date %></td>
             <td><%= subscription.next_shipment_date %></td>
-            <td><%= t(subscription.state, :scope => 'subscription_state').titleize %></td>
+            <td><%= t((subscription.state || :active), :scope => :subscription_state) %></td>
           </tr>
         <% end %>
       </tbody>
