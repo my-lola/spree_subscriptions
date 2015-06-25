@@ -4,26 +4,20 @@ ENV['RAILS_ENV'] = 'test'
 require File.expand_path('../dummy/config/environment.rb',  __FILE__)
 
 require 'rspec/rails'
-require 'capybara/rspec'
+require 'factory_girl'
 require 'ffaker'
+FactoryGirl.find_definitions
 
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories.
 Dir[File.join(File.dirname(__FILE__), 'support/**/*.rb')].each { |f| require f }
 
 # Requires factories defined in spree_core
-require 'spree/core/testing_support/factories'
-require 'spree/core/url_helpers'
-
-Dir["#{File.dirname(__FILE__)}/factories/**/*.rb"].each do |f|
-  fp =  File.expand_path(f)
-  require fp
-end
+require 'spree/testing_support/factories'
+require 'spree/testing_support/controller_requests'
+require 'spree/testing_support/authorization_helpers'
 
 RSpec.configure do |config|
-  # Silence Warning
-  ::ActiveSupport::Deprecation.silenced = true
-
   config.include FactoryGirl::Syntax::Methods
 
   # == URL Helpers
@@ -32,7 +26,7 @@ RSpec.configure do |config|
   #
   # visit spree.admin_path
   # current_path.should eql(spree.products_path)
-  config.include Spree::Core::UrlHelpers
+  # config.include Spree::Core::UrlHelpers
 
   # == Mock Framework
   #
@@ -51,11 +45,7 @@ RSpec.configure do |config|
   # instead of true.
   config.use_transactional_fixtures = true
 
-  # DB Cleaner
-  config.before(:suite) do
-    DatabaseCleaner.strategy = :truncation
-    DatabaseCleaner.clean_with(:truncation)
-  end
+  DatabaseCleaner.strategy = :truncation
 
   config.before(:each) do
     DatabaseCleaner.start
