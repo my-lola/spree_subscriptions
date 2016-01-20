@@ -192,7 +192,7 @@ describe Spree::Subscription do
 
     def create_subscriptions(subscriptions_attr)
       subscriptions = []
-      subscriptions_attr.each { |attribute| subscriptions << FactoryGirl.create(:subscription, attributes) }
+      subscriptions_attr.each { |attributes| subscriptions << FactoryGirl.create(:subscription, attributes) }
       subscriptions.each(&:save!)
       subscriptions
     end
