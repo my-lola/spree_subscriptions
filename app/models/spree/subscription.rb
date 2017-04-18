@@ -183,10 +183,12 @@ module Spree
     end
 
     def last_skip
-      skips.last if skips.any? && skips.last.undo_at.nil? && skips.last.renewed_at.nil?
+      skips.last if active_skips?
     end
 
-    alias_attribute :skipping?, :last_skip
+    def skipping?
+      skips.last if active_skips? && skips.last.skip_at.to_date >= Date.today
+    end
 
     def can_skip
       # only allow skipping after date has pass
@@ -248,5 +250,10 @@ module Spree
       }))
     end
 
+    private
+
+    def active_skips?
+      skips.any? && skips.last.undo_at.nil? && skips.last.renewed_at.nil?
+    end
   end
 end
