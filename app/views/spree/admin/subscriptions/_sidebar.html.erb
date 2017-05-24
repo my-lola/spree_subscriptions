@@ -21,12 +21,21 @@
       </dd>
       <dt>Skip order</dt>
       <dd><%= @subscription.skip_order_at ? 'Yes' : 'No' %></dd>
-      <dt>Skip order at</dt>
-      <dd>
-        <%= l(@subscription.skip_order_at, format: :subscription_date_format) if @subscription.skipping? %>
-        <%= link_to 'Skip', skip_admin_subscription_path(@subscription), method: :put if @subscription.can_skip? %>
-        <%= link_to 'Undo', undo_skip_admin_subscription_path(@subscription), method: :put if @subscription.skipping? %>
-      </dd>
+
+      <% if @subscription.skip_order_until %>
+        <dt>Summer skips:</dt>
+        <dd>
+          Yes
+          <%= link_to 'Undo', undo_skip_admin_subscription_path(@subscription), method: :put if @subscription.skipping? %>
+        </dd>
+      <% else %>
+        <dt>Skip order at</dt>
+        <dd>
+          <%= l(@subscription.skip_order_at, format: :subscription_date_format) if @subscription.skipping? %>
+          <%= link_to 'Skip', skip_admin_subscription_path(@subscription), method: :put if @subscription.can_skip? %>
+          <%= link_to 'Undo', undo_skip_admin_subscription_path(@subscription), method: :put if @subscription.skipping? %>
+        </dd>
+      <% end %>
       <dt>Failed renewals</dt>
       <dd><%= @subscription.failure_count %></dd>
     <% end %>

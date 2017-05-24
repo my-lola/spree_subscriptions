@@ -15,6 +15,8 @@ module Spree
     has_many :subscription_skips, dependent: :destroy, inverse_of: :subscription, dependent: :destroy
     alias_attribute :skips, :subscription_skips
 
+    has_many :subscription_skip_links, class_name: 'Spree::SubscriptionSkipLink'
+
     accepts_nested_attributes_for :ship_address
     accepts_nested_attributes_for :bill_address
 
@@ -50,7 +52,7 @@ module Spree
           last_order = subscription.last_order
           next unless last_order
           next if subscription.prepaid?
-          subscription.next_shipment_date.to_date <= Date.today          
+          subscription.next_shipment_date.to_date <= Date.today
         end
 
         where(id: subscriptions.collect(&:id))
@@ -68,14 +70,14 @@ module Spree
 
     def next_shipment_date
       if skip_order_at
-        skip_order_at.advance(calc_next_renewal_date)
+        skip_order_at.advance(renewal_date_at)
       elsif last_order
         last_order.completed_at.advance(calc_next_renewal_date)
       end
     end
 
     def calc_next_renewal_date
-      { weeks: interval }      
+      { weeks: interval }
     end
 
     def active?
@@ -177,9 +179,15 @@ module Spree
     def undo_skip_next_order
       last_skip.update_attribute(:undo_at, Time.now) if skipping?
     end
- 
+
     def skip_order_at
-      last_skip.skip_at if skipping? 
+      last_skip.skip_at if skipping?
+    end
+
+    def skip_order_until
+      return nil unless skipping?
+
+      last_skip.skip_until ? last_skip.skip_until : nil
     end
 
     def last_skip
@@ -187,7 +195,7 @@ module Spree
     end
 
     def skipping?
-      skips.last if active_skips? && skips.last.skip_at.to_date >= Date.today
+      skips.last if (active_skips? && skips.last.skip_at && skips.last.skip_at >= Date.today)
     end
 
     def can_skip
@@ -254,6 +262,10 @@ module Spree
 
     def active_skips?
       skips.any? && skips.last.undo_at.nil? && skips.last.renewed_at.nil?
+    end
+
+    def active_interval_skips?
+      skips.any? && skips.last.skip_until.to_date >= Date.today
     end
   end
 end
