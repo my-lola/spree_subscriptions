@@ -3,6 +3,7 @@ module Spree
 
     def self.prepended(base)
       base.has_many :subscriptions
+      base.has_many :subscription_skip_links, class_name: 'Spree::SubscriptionSkipLink'
     end
 
     def subscription_orders
