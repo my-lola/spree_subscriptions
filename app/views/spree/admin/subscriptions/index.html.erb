@@ -92,11 +92,15 @@
       <tr data-hook="admin_subscriptions_index_rows" class="<%= cycle('odd', 'even') %>">
         <td class="align-center"><%= subscription.id %></td>
         <td class="align-center">
-            <span class="state <%= subscription.active? ? 'success' : 'canceled' %>"><%= subscription.state %></span>
+            <% if subscription.orders.any? %>
+              <span class="state <%= subscription.active? ? 'success' : 'canceled' %>"><%= subscription.state %></span>
+            <% else %>
+              <span class="state canceled">Error</span>
+            <% end %>
         </td>
         <td class="align-center">
           <% if subscription.can_renew? %>
-          Every  <%= pluralize(subscription.interval, 'month') %>
+            Every  <%= pluralize(subscription.interval, 'month') %>
           <% end %>
         </td>
         <td>
@@ -109,7 +113,7 @@
             <br />
             <%= subscription.shipping_method.name if subscription.shipment && subscription.shipment.shipping_method %>
           <% else %>
-            Subscription with empty orders.
+            No orders found for this subscription
           <% end %>
         </td>
         <td class="align-center">
